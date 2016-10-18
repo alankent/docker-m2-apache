@@ -13,7 +13,7 @@ RUN apt-get update \
  && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
  && docker-php-ext-install gd intl mbstring mcrypt pdo_mysql xsl zip \
  && apt-get update \
- && apt-get install -y vim git curl net-tools telnet sudo cron \
+ && apt-get install -y vim git curl net-tools telnet sudo cron zip \
  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
  && a2enmod rewrite \
  && echo "memory_limit = 2048M" > /usr/local/etc/php/php.ini
@@ -111,9 +111,23 @@ RUN sed -i -e 's/www-data/magento/g' /etc/apache2/envvars \
 RUN cd /usr/local/bin \
  && curl -L -o unison https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-2.48.3 \
  && curl -L -o unison-fsmonitor https://github.com/TentativeConvert/Syndicator/raw/master/unison-binaries/unison-fsmonitor \
- && chmod +x unison* \
+ && chmod +x unison unison-fsmonitor
+
+RUN mkdir /windows \
+ && cd /windows \
  && curl -L -o unison-windows.zip https://www.irif.fr/~vouillon/unison/unison%202.48.3.zip \
- && curl -L -o unison-mac-osx.zip http://unison-binaries.inria.fr/files/Unison-OS-X-2.48.3.zip
+ && unzip unison-windows.zip \
+ && rm unison-windows.zip \
+ && mv 'unison 2.48.3 text.exe' unison.exe \
+ && rm 'unison 2.48.3 GTK.exe' \
+ && chown -R ${MAGENTO_USER}:${MAGENTO_GROUP} .
+
+RUN mkdir /mac-osx \
+ && cd /mac-osx \
+ && curl -L -o unison-mac-osx.zip http://unison-binaries.inria.fr/files/Unison-OS-X-2.48.3.zip \
+ && unzip unison-mac-osx.zip \
+ && rm unison-mac-osx.zip \
+ && chown -R ${MAGENTO_USER}:${MAGENTO_GROUP} .
 
 # Unison 2.48.3 (from internet searches, but comes up with 404 errors)
 #RUN apt-get update && apt-get install -y software-properties-common python-software-properties
